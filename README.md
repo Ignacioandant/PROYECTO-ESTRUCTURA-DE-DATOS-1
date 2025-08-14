@@ -1,2 +1,2 @@
 # PROYECTO-ESTRUCTURA-DE-DATOS-1
-Un proyecto dedicado a la programación para completar una serie de tareas en un determinado periodo de tiempo. Este proyecto esta conformado por los universitarios de la UADE llamados Jeremías Fierro, Gracia Lucas, Ignacio Andant, Juani... y Ignacio....
+Un proyecto dedicado a la programación para completar una serie de tareas en un determinado periodo de tiempo. En este proyecto se van a ver: Cadena de caracteres, convertir tipos de datos, formateo de cadenas, ruptura de ciclos y más... donde a partir del avanze de las etapas se aprenden y se les habilitan a  los estudiantes (nosotros) a poder usar nuevas funciones como el break en un futuro a medida que avance el trabajo.
