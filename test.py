@@ -82,3 +82,24 @@ for k in range(Chuesped):
 
 print("lista de huéspedes:")
 print(listaHuesped)
+
+# Gestión de pertenencias de huéspedes
+listaobjetos = []  # Lista para almacenar las pertenencias de cada huésped
+
+for k in range(len(listaHuesped)): #optimizar en el caso de que pongan n, asi solo skipea el huesped y no la lista entera
+    question1=input(f"armar checklist para objetos para el huesped {k+1}?(y/n)")
+    if question1=="y":
+        objetos=int(input(f"ingrese la cantidad de objetos en la checklist del huesped {k+1}: "))
+        for x in range(objetos):
+            aux=input(f"ingrese el {x+1} objeto")
+            listaobjetos.append(aux)
+    else:
+        print(f"no ha creado una checklist para el huesped {k+1}")
+
+matrizOC=[ #roto, solo toma splits y cosas como [juan,toto,maria],[obj1,obj2,obj3],etc. no accepta listas como lo puse
+    [listaHuesped]
+    [listaobjetos]
+]
+for k in range(len(listaHuesped)):
+    for x in range(len(listaobjetos)):
+        print(f"huesped {listaHuesped[k]}, objetos {listaobjetos[x]}")
