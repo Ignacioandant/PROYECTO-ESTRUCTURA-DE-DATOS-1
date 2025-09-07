@@ -51,6 +51,37 @@ Número máximo y mínimo de personas en cada habitación y pisos.
 """
 import random
 
+def estadisticas_pertenencias(matrizOC):
+    resumen = [(fila[0], len(fila[1])) for fila in matrizOC]
+
+    total_huespedes = len(resumen)
+    total_objetos = sum(c for _, c in resumen)
+    promedio = total_objetos / total_huespedes if total_huespedes > 0 else 0
+
+    max_cantidad = max(c for _, c in resumen)
+    min_cantidad = min(c for _, c in resumen)
+
+    huespedes_max = [n for n, c in resumen if c == max_cantidad]
+    huespedes_min = [n for n, c in resumen if c == min_cantidad]
+
+    print("=== Estadísticas de pertenencias ===")
+    print(f"Total de huéspedes: {total_huespedes}")
+    print(f"Total de objetos registrados: {total_objetos}")
+    print(f"Promedio de pertenencias por huésped: {promedio:.2f}\n")
+
+    print(f"Máximo de pertenencias: {max_cantidad}")
+    print("Huésped(es) con máximo de pertenencias:")
+    for h in huespedes_max:
+        print(" -", h)
+    print()
+
+    print(f"Mínimo de pertenencias: {min_cantidad}")
+    print("Huésped(es) con mínimo de pertenencias:")
+    for h in huespedes_min:
+        print(" -", h)
+
+
+#parte 1
 listaHuesped=[]
 listaPersonal=[]
 
@@ -72,7 +103,7 @@ print(listaPersonal)
 Chuesped = int(input("ingrese cuántos huéspedes: ")) #ingreso de cantidad de huespedes
 for k in range(Chuesped):
     huesped = input(f"ingrese el nombre del huésped {k+1}: ")
-    if huesped in listaHuesped:                                              # Verifica si el huesped esta repetido
+    if huesped in listaHuesped:                      # Verifica si el huesped esta repetido
         aux=huesped
         huesped=input(f"el huésped '{huesped}' ya existe en el registro, ingrese nuevamente ")
         if huesped!=aux:
@@ -83,23 +114,42 @@ for k in range(Chuesped):
 print("lista de huéspedes:")
 print(listaHuesped)
 
-# Gestión de pertenencias de huéspedes
-listaobjetos = []  # Lista para almacenar las pertenencias de cada huésped
+#parte 2
+matrizOC = []  #[nombre del huesped, [objetos]]
 
-for k in range(len(listaHuesped)): #optimizar en el caso de que pongan n, asi solo skipea el huesped y no la lista entera
-    question1=input(f"armar checklist para objetos para el huesped {k+1}?(y/n)")
-    if question1=="y":
-        objetos=int(input(f"ingrese la cantidad de objetos en la checklist del huesped {k+1}: "))
-        for x in range(objetos):
-            aux=input(f"ingrese el {x+1} objeto")
-            listaobjetos.append(aux)
-    else:
-        print(f"no ha creado una checklist para el huesped {k+1}")
-
-matrizOC=[ #roto, solo toma splits y cosas como [juan,toto,maria],[obj1,obj2,obj3],etc. no accepta listas como lo puse
-    [listaHuesped]
-    [listaobjetos]
-]
 for k in range(len(listaHuesped)):
-    for x in range(len(listaobjetos)):
-        print(f"huesped {listaHuesped[k]}, objetos {listaobjetos[x]}")
+    listaObjetos_huesped = []
+    question1 = input(f"¿Armar checklist para objetos del huésped {listaHuesped[k]}? (y/n): ")
+
+    if question1.lower() == "y": #lower esta asi toma siempre la y incluso si esta mayuscula
+        objetos = int(input(f"Ingrese la cantidad de objetos para {listaHuesped[k]} (máx 10): "))
+
+        for x in range(min(objetos, 10)): #solidifica que si o si sea 10 el limite
+            aux = input(f"Ingrese el objeto {x+1}: ")
+            listaObjetos_huesped.append(aux)
+    else:
+        print(f"No se creó checklist para el huésped {listaHuesped[k]}")
+
+    matrizOC.append([listaHuesped[k], listaObjetos_huesped])
+
+print("\n=== MATRIZ DE HUESPEDES Y OBJETOS ===")
+for fila in matrizOC:
+    print(f"Huésped: {fila[0]} - Objetos: {fila[1]}")
+
+estadisticas_pertenencias(matrizOC) #llamada del def para la matrizOC
+
+#parte 3
+#LLave virtual
+def generar_llave():
+    llave = random.randint(1000, 9999)
+    return llave
+
+
+llave_virtual = str(input("Deseea solicitar su llave virtual? (si/no): "))
+if llave_virtual.lower() == "si":
+    print("Su llave virtual es: ", generar_llave())
+elif llave_virtual.lower() == "no":
+    print("No se generó ninguna llave virtual.")
+else:
+    print("Respuesta no válida. Por favor, responda 'si' o 'no'.")
+    llave_virtual = str(input("Deseea solicitar su llave virtual? (si/no): "))
