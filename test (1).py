@@ -281,3 +281,61 @@ for i in range(pisos):
     print(f"Piso {i+1}: {ocupacion_por_piso[i]} personas")
 print(f"Máximo de personas en un piso: {max_personas_piso}")
 print(f"Mínimo de personas en un piso: {min_personas_piso}")
+
+
+# parte 5 - Control de accesos
+# Esta sección registra las entradas y salidas de huéspedes y personal, guardando quién realizó la acción, el tipo de persona (huésped/personal),
+#la fecha y hora exacta. Si alguien intenta ingresar o salir sin estar previamente registrado, el sistema genera una alerta y guarda el intento como
+#acceso no autorizado. Además, se muestra un historial completo de accesos válidos y de intentos rechazados.
+
+from datetime import datetime
+
+print("\n=== Control de accesos ===")
+
+# Historiales
+accesos = []  # accesos válidos: [{persona, tipo, accion, fecha_hora}]
+intentos_no_autorizados = []  # intentos inválidos: [{persona, accion, fecha_hora}]
+
+def registrar_acceso(persona: str, accion: str):
+    """ Registra un acceso (entrada/salida).
+    Si la persona no está en huéspedes ni en personal -> alerta de acceso no autorizado. """
+    accion = accion.strip().lower()
+    if accion not in ("entrada", "salida"):
+        print("Acción inválida. Use 'entrada' o 'salida'.")
+        return
+
+    ahora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if persona in listaHuesped:
+        accesos.append({"persona": persona, "tipo": "Huésped", "accion": accion, "fecha_hora": ahora})
+        print(f"Acceso registrado: {persona} (Huésped) -> {accion} @ {ahora}")
+    elif persona in listaPersonal:
+        accesos.append({"persona": persona, "tipo": "Personal", "accion": accion, "fecha_hora": ahora})
+        print(f"Acceso registrado: {persona} (Personal) -> {accion} @ {ahora}")
+    else:
+        intentos_no_autorizados.append({"persona": persona, "accion": accion, "fecha_hora": ahora})
+        print(f"ALERTA: acceso no autorizado para '{persona}' @ {ahora}")
+
+# Carga interactiva de accesos
+while True:
+    registrar = input("¿Desea registrar un acceso? (si/no): ").strip().lower()
+    if registrar != "si":
+        break
+    persona = input("Nombre y apellido de la persona: ").strip()
+    accion = input("Acción (entrada/salida): ").strip()
+    registrar_acceso(persona, accion)
+
+# Reportes de la parte 5
+print("\n=== Historial de accesos (válidos) ===")
+if not accesos:
+    print("No se registraron accesos válidos.")
+else:
+    for i, a in enumerate(accesos, start=1):
+        print(f"{i}. {a['fecha_hora']} - {a['tipo']}: {a['persona']} - {a['accion']}")
+
+print("\n=== Intentos de acceso no autorizados ===")
+if not intentos_no_autorizados:
+    print("No hubo intentos no autorizados.")
+else:
+    for i, a in enumerate(intentos_no_autorizados, start=1):
+        print(f"{i}. {a['fecha_hora']} - Persona: {a['persona']} - Intento: {a['accion']}")
