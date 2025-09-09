@@ -30,8 +30,8 @@ M: En mantenimiento
 Se va a registrar primero la cantidad de ingreso que va a haber en el hotel ( más información en la parte de máximos y mínimos), al registrar un huésped, el sistema deberá asignarle automáticamente la primera habitación libre.
 Se deberá poder cambiar de habitación a un huésped si es necesario.
 Se calcularán estadísticas de ocupación:
-Porcentaje de habitaciones ocupadas, libres y en mantenimiento.
-Número máximo y mínimo de cantidad de personas en cada habitación y pisos.
+Porcentaje de habitaciones ocupadas y libres.
+Número máximo y mínimo de cantidad de personas en cada piso.
 
 5. Control de accesos
 Se almacenará una lista de accesos realizados (entradas y salidas).
@@ -42,7 +42,7 @@ Si se intenta ingresar sin estar registrado, el sistema generará una alerta de 
 Al finalizar la ejecución, el sistema deberá mostrar:
 El listado de huéspedes con sus pertenencias y número de habitación.
 El listado del personal registrado.
-El estado de la matriz de habitaciones (ocupadas, libres y en mantenimiento), indicando el total de cada tipo y los porcentajes.
+El estado de la matriz de habitaciones (ocupadas o libres), indicando el total de cada tipo y los porcentajes.
 El historial de accesos realizados con fecha y hora.
 El listado de intentos de acceso no autorizados.
 Estadísticas adicionales:
@@ -52,13 +52,13 @@ Número máximo y mínimo de personas en cada habitación y pisos.
 import random
 
 def estadisticas_pertenencias(matrizOC):
-    resumen = [(fila[0], len(fila[1])) for fila in matrizOC]
+    resumen = [(fila[0], len(fila[1])) for fila in matrizOC] #lista=[x,y] x= entra a la lista de nombres y= la cantidad de objetos en la lista de objetos
 
     total_huespedes = len(resumen)
     total_objetos = sum(c for _, c in resumen)
-    promedio = total_objetos / total_huespedes if total_huespedes > 0 else 0
+    promedio = total_objetos / total_huespedes if total_huespedes > 0  else 0
 
-    max_cantidad = max(c for _, c in resumen)
+    max_cantidad = max(c for _, c in resumen) #ignora el nombre y toma la cantidad
     min_cantidad = min(c for _, c in resumen)
 
     huespedes_max = [n for n, c in resumen if c == max_cantidad]
@@ -130,13 +130,13 @@ for k in range(len(listaHuesped)):
     else:
         print(f"No se creó checklist para el huésped {listaHuesped[k]}")
 
-    matrizOC.append([listaHuesped[k], listaObjetos_huesped])
+    matrizOC.append([listaHuesped[k], listaObjetos_huesped]) #como cualquier otra lista
 
 print("\n=== MATRIZ DE HUESPEDES Y OBJETOS ===")
 for fila in matrizOC:
     print(f"Huésped: {fila[0]} - Objetos: {fila[1]}")
 
-estadisticas_pertenencias(matrizOC) #llamada del def para la matrizOC
+estadisticas_pertenencias(matrizOC) #llamada del def para la matrizOC para estadisticas
 
 #parte 3
 #LLave virtual
@@ -155,12 +155,8 @@ else:
     llave_virtual = str(input("Deseea solicitar su llave virtual? (si/no): "))
 
 
-
-
 #parte 4
-
 print("\n=== Sistema de habitaciones ===")
-
 
 pisos=int(input("Ingrese la cantidad de pisos del hotel (1-8): "))
 habitaciones_por_piso=int(input("Ingrese la cantidad de habitaciones por piso:"))
@@ -192,34 +188,7 @@ for k in range(len(listaHuesped)):
         print(f"No hay habitaciones libres para el huésped {huesped}")
 
 
-print("\nEstado actual de las habitaciones (L=Libre, O=Ocupada, M=Mantenimiento):")
-for i in range(pisos):
-    print(f"Piso {i+1}: ",matrizHabitaciones[i])
-
-# Cambiar de habitación
-cambio=input("\n¿Desea cambiar la habitación de algún huésped? (si/no): ")
-if cambio.lower()=="si":
-    nombre_huesped=input("Ingrese el nombre del huésped:")
-    piso_nuevo=int(input("Ingrese el piso nuevo (1-indexado):"))-1
-    hab_nueva=int(input("Ingrese la habitación nueva (1-indexado):"))-1
-
-    for k in range(len(asignaciones)):
-        if asignaciones[k][0]==nombre_huesped:
-            if matrizHabitaciones[piso_nuevo][hab_nueva]=="L":
-                # Liberar habitación actual
-                piso_actual=asignaciones[k][1]
-                hab_actual=asignaciones[k][2]
-                matrizHabitaciones[piso_actual][hab_actual]="L"
-                # Asignar nueva habitación
-                matrizHabitaciones[piso_nuevo][hab_nueva]="O"
-                asignaciones[k][1]=piso_nuevo
-                asignaciones[k][2]=hab_nueva
-                print(f"Huésped {nombre_huesped} cambiado a Piso {piso_nuevo+1}, Habitación {hab_nueva+1}")
-            else:
-                print("La habitación seleccionada no está libre.")
-
-# Mostrar estado actualizado
-print("\nEstado actualizado de las habitaciones:")
+print("\nEstado actual de las habitaciones (L=Libre, O=Ocupada):")
 for i in range(pisos):
     print(f"Piso {i+1}: ",matrizHabitaciones[i])
 
@@ -227,7 +196,6 @@ for i in range(pisos):
 total_habitaciones=pisos*habitaciones_por_piso
 ocupadas=0
 libres=0
-mantenimiento=0
 
 for i in range(pisos):
     for j in range(habitaciones_por_piso):
@@ -235,33 +203,12 @@ for i in range(pisos):
             ocupadas=ocupadas+1
         elif matrizHabitaciones[i][j]=="L":
             libres=libres+1
-        elif matrizHabitaciones[i][j]=="M":
-            mantenimiento=mantenimiento+1
 
 print("\n=== Estadísticas de ocupación ===")
 print(f"Total de habitaciones: {total_habitaciones}")
 print(f"Libres: {libres} ({libres/total_habitaciones*100:.2f}%)")
 print(f"Ocupadas: {ocupadas} ({ocupadas/total_habitaciones*100:.2f}%)")
-print(f"En mantenimiento: {mantenimiento} ({mantenimiento/total_habitaciones*100:.2f}%)")
 
-
-# Número máximo y mínimo de personas por habitación
-# Cada habitación puede tener 0 (Libre) o 1 (Ocupada) persona
-personas_por_habitacion=[]
-
-for i in range(pisos):
-    for j in range(habitaciones_por_piso):
-        if matrizHabitaciones[i][j]=="O":
-            personas_por_habitacion.append(1)
-        else:
-            personas_por_habitacion.append(0)
-
-max_personas_habitacion=max(personas_por_habitacion)
-min_personas_habitacion=min(personas_por_habitacion)
-
-print("\n=== Personas por habitación ===")
-print(f"Máximo de personas en una habitación: {max_personas_habitacion}")
-print(f"Mínimo de personas en una habitación: {min_personas_habitacion}")
 
 # Número máximo y mínimo de ocupación por piso
 ocupacion_por_piso = []
@@ -284,58 +231,76 @@ print(f"Mínimo de personas en un piso: {min_personas_piso}")
 
 
 # parte 5 - Control de accesos
+
 # Esta sección registra las entradas y salidas de huéspedes y personal, guardando quién realizó la acción, el tipo de persona (huésped/personal),
 #la fecha y hora exacta. Si alguien intenta ingresar o salir sin estar previamente registrado, el sistema genera una alerta y guarda el intento como
 #acceso no autorizado. Además, se muestra un historial completo de accesos válidos y de intentos rechazados.
 
-from datetime import datetime
-
-print("\n=== Control de accesos ===")
-
-# Historiales
-accesos = []  # accesos válidos: [{persona, tipo, accion, fecha_hora}]
-intentos_no_autorizados = []  # intentos inválidos: [{persona, accion, fecha_hora}]
+accesos = []  # accesos válidos
+intentos_no_autorizados = []  # intentos inválidos
 
 def registrar_acceso(persona: str, accion: str):
-    """ Registra un acceso (entrada/salida).
-    Si la persona no está en huéspedes ni en personal -> alerta de acceso no autorizado. """
+    """ Registra un acceso (entrada/salida) con hora, minuto y segundo aleatorios. """
+    global accesos, intentos_no_autorizados
     accion = accion.strip().lower()
     if accion not in ("entrada", "salida"):
         print("Acción inválida. Use 'entrada' o 'salida'.")
         return
 
-    ahora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Hora aleatoria
+    hora = random.randint(0, 23)
+    minuto = random.randint(0, 59)
+    segundo = random.randint(0, 59)
 
     if persona in listaHuesped:
-        accesos.append({"persona": persona, "tipo": "Huésped", "accion": accion, "fecha_hora": ahora})
-        print(f"Acceso registrado: {persona} (Huésped) -> {accion} @ {ahora}")
+        accesos.append({
+            "persona": persona,
+            "tipo": "Huésped",
+            "accion": accion,
+            "hora": hora,
+            "minuto": minuto,
+            "segundo": segundo
+        })
+        print(f"Acceso registrado: {persona} (Huésped) -> {accion} | {hora:02d}:{minuto:02d}:{segundo:02d}") #02 es para que sean 2 digitos y la d es para que sean numeros redondos
     elif persona in listaPersonal:
-        accesos.append({"persona": persona, "tipo": "Personal", "accion": accion, "fecha_hora": ahora})
-        print(f"Acceso registrado: {persona} (Personal) -> {accion} @ {ahora}")
+        accesos.append({
+            "persona": persona,
+            "tipo": "Personal",
+            "accion": accion,
+            "hora": hora,
+            "minuto": minuto,
+            "segundo": segundo
+        })
+        print(f"Acceso registrado: {persona} (Personal) -> {accion} | {hora:02d}:{minuto:02d}:{segundo:02d}")
     else:
-        intentos_no_autorizados.append({"persona": persona, "accion": accion, "fecha_hora": ahora})
-        print(f"ALERTA: acceso no autorizado para '{persona}' @ {ahora}")
-
-# Carga interactiva de accesos
+        intentos_no_autorizados.append({
+            "persona": persona,
+            "accion": accion,
+            "hora": hora,
+            "minuto": minuto,
+            "segundo": segundo
+        })
+        print(f"ALERTA: acceso no autorizado para '{persona}' | {hora:02d}:{minuto:02d}:{segundo:02d}")
+        
 while True:
-    registrar = input("¿Desea registrar un acceso? (si/no): ").strip().lower()
+    registrar = input("\n¿Desea registrar un acceso? (si/no): ").strip().lower()
     if registrar != "si":
         break
     persona = input("Nombre y apellido de la persona: ").strip()
     accion = input("Acción (entrada/salida): ").strip()
     registrar_acceso(persona, accion)
 
-# Reportes de la parte 5
-print("\n=== Historial de accesos (válidos) ===")
+# Reportes finales
+print("\n=== Historial de accesos válidos ===")
 if not accesos:
     print("No se registraron accesos válidos.")
 else:
     for i, a in enumerate(accesos, start=1):
-        print(f"{i}. {a['fecha_hora']} - {a['tipo']}: {a['persona']} - {a['accion']}")
+        print(f"{i}. {a['hora']:02d}:{a['minuto']:02d}:{a['segundo']:02d} - {a['tipo']}: {a['persona']} - {a['accion']}")
 
 print("\n=== Intentos de acceso no autorizados ===")
 if not intentos_no_autorizados:
     print("No hubo intentos no autorizados.")
 else:
     for i, a in enumerate(intentos_no_autorizados, start=1):
-        print(f"{i}. {a['fecha_hora']} - Persona: {a['persona']} - Intento: {a['accion']}")
+        print(f"{i}. {a['hora']:02d}:{a['minuto']:02d}:{a['segundo']:02d} - Persona: {a['persona']} - Intento: {a['accion']}")
