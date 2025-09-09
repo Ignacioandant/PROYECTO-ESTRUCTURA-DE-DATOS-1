@@ -304,3 +304,61 @@ if not intentos_no_autorizados:
 else:
     for i, a in enumerate(intentos_no_autorizados, start=1):
         print(f"{i}. {a['hora']:02d}:{a['minuto']:02d}:{a['segundo']:02d} - Persona: {a['persona']} - Intento: {a['accion']}")
+#punto 6
+
+
+def reportes_finales(listaHuesped, listaPersonal, matrizHabitaciones, matrizOC, accesos, accesos_no_autorizados):
+    print("\n========== REPORTES FINALES ==========\n")
+
+    # Listado de huéspedes con sus pertenencias
+    print("Huéspedes, sus pertenencias y número de habitación:")
+    for i, (huesped, objetos) in enumerate(matrizOC):
+        hab_asignada = None
+        for piso in range(len(matrizHabitaciones)):
+            for hab in range(len(matrizHabitaciones[piso])):
+                if matrizHabitaciones[piso][hab] == "O":  # ocupada
+                    hab_asignada = f"Piso {piso+1}, Habitación {hab+1}"
+                    break
+            if hab_asignada:
+                break
+        print(f"- {huesped}: {objetos} | Habitación: {hab_asignada}")
+    print()
+
+    # Listado de personal
+    print("Personal registrado:")
+    for p in listaPersonal:
+        print("-", p)
+    print()
+
+    # Estado de habitaciones
+    total = sum(len(fila) for fila in matrizHabitaciones)
+    ocupadas = sum(fila.count("O") for fila in matrizHabitaciones)
+    libres = sum(fila.count("L") for fila in matrizHabitaciones)
+    mantenimiento = sum(fila.count("M") for fila in matrizHabitaciones)
+
+    print("Estado de habitaciones:")
+    print(f"Ocupadas: {ocupadas} ({ocupadas/total*100:.2f}%)")
+    print(f"Libres: {libres} ({libres/total*100:.2f}%)")
+    print(f"En mantenimiento: {mantenimiento} ({mantenimiento/total*100:.2f}%)")
+    print()
+
+    # Historial de accesos
+    print("Historial de accesos:")
+    for acc in accesos:
+        print("-", acc)
+    print()
+
+    # Intentos no autorizados
+    print("Intentos de acceso no autorizados:")
+    for intento in accesos_no_autorizados:
+        print("-", intento)
+    print()
+
+    # Estadísticas adicionales (ejemplo: ocupación y personas por piso)
+    print("Estadísticas adicionales:")
+    print(f"Porcentaje de ocupación: {(ocupadas/total*100):.2f}%")
+
+    for piso, fila in enumerate(matrizHabitaciones):
+        personas = fila.count("O")  # suponiendo 1 persona por habitación ocupada
+        print(f"Piso {piso+1}: {personas} personas")
+    print("=====================================\n")
