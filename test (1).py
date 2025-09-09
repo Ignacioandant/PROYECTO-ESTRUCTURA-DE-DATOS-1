@@ -304,6 +304,7 @@ if not intentos_no_autorizados:
 else:
     for i, a in enumerate(intentos_no_autorizados, start=1):
         print(f"{i}. {a['hora']:02d}:{a['minuto']:02d}:{a['segundo']:02d} - Persona: {a['persona']} - Intento: {a['accion']}")
+
 #punto 6
 
 
@@ -339,7 +340,6 @@ def reportes_finales(listaHuesped, listaPersonal, matrizHabitaciones, matrizOC, 
     print("Estado de habitaciones:")
     print(f"Ocupadas: {ocupadas} ({ocupadas/total*100:.2f}%)")
     print(f"Libres: {libres} ({libres/total*100:.2f}%)")
-    print(f"En mantenimiento: {mantenimiento} ({mantenimiento/total*100:.2f}%)")
     print()
 
     # Historial de accesos
@@ -362,3 +362,4 @@ def reportes_finales(listaHuesped, listaPersonal, matrizHabitaciones, matrizOC, 
         personas = fila.count("O")  # suponiendo 1 persona por habitación ocupada
         print(f"Piso {piso+1}: {personas} personas")
     print("=====================================\n")
+    
