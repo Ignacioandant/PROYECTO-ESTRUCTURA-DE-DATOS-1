@@ -1,0 +1,2 @@
+[2025-10-11 16:32:10] OK: Datos demo generados
+[2025-10-11 16:33:34] OK: Matriz de habitaciones guardada

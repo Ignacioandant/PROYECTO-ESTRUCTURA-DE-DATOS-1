@@ -1,0 +1,2 @@
+admin;671;personal
+recepcion;686;personal
