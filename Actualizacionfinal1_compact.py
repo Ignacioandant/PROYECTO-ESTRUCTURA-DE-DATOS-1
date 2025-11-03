@@ -53,7 +53,7 @@ FUNCIONALIDADES (6):
 1) Registro de huéspedes y personal (ABM + login simple, sin POO, TXT plano)
 2) Gestión de pertenencias de huéspedes (máx. 10; estadísticas: promedio, máx, mín)
 3) Llaves virtuales de acceso (códigos aleatorios y estado/validez)
-4) Matriz de habitaciones (L/O/M); asignación automática, cambio de habitación, estadísticas
+4) Matriz de habitaciones (L/O/M); asignación automática
 5) Control de accesos (entradas/salidas, hora); alerta si no está registrado
 6) Reportes finales (≥4 CSV + opcional JSON), con % y promedios
 
@@ -75,15 +75,19 @@ CONDICIONES DE LA CÁTEDRA (resumen):
 import random 
 
 def login(): 
-    while True:
-        usuario = input("Ingrese su nombre de usuario: ").strip()
-        contrasena = input("Ingrese su contraseña: ").strip()
+    try:
+        while True:
+            usuario = input("Ingrese su nombre de usuario: ").strip()
+            contrasena = input("Ingrese su contraseña: ").strip()
 
-        if usuario == "" or contrasena == "":
-            print("Usuario y contraseña no pueden estar vacíos, intente de nuevo.")
-            continue
+            if usuario == "" or contrasena == "":
+                print("Usuario y contraseña no pueden estar vacíos, intente de nuevo.")
+                continue
+            break
+    except ValueError:
+        print("Error en la entrada, intente de nuevo.")
 
-        return usuario, contrasena
+    return usuario, contrasena
     
 
 def ipertenencias(listapertenencias):
@@ -153,29 +157,34 @@ def ihotel_2():
     return matriz
 
 
-def control_accesos():
-    usuarios = {
-        "admin": "1234",
-        "recepcionista": "abcd",
-        "cliente": "0000"
-    }  # diccionario de usuarios y contraseñas
+def control_accesos(dicc):
 
     intentos = 3
+    usuario_autorizado = None  # Variable 
+
     while intentos > 0:
-        print("\n=== CONTROL DE ACCESOS ===")
-        usuario = input("Usuario: ").strip()
-        contrasena = input("Contraseña: ").strip()
+        try:
+            print("\n=== CONTROL DE ACCESOS ===")
+            usuario = input("Usuario: ").strip()
+            contrasena = input("Contraseña: ").strip()
 
-        if usuario in usuarios and usuarios[usuario] == contrasena:
-            print(f"Acceso autorizado. Bienvenido, {usuario}.")
-            return usuario  # acceso OK
-        else:
-            intentos -= 1
-            print(f"Acceso denegado. Intentos restantes: {intentos}")
+            if usuario in dicc and dicc[usuario] == contrasena:
+                print(f"Acceso autorizado. Bienvenido, {usuario}.")
+                usuario_autorizado = usuario
+                break  
+            else:
+                intentos -= 1
+                print(f"Acceso denegado. Intentos restantes: {intentos}")
 
-    print("Demasiados intentos. Acceso bloqueado.")
-    return None  # acceso falló
+        except ValueError:
+            print("Error en el proceso de acceso")
 
+    if usuario_autorizado is None:
+        print("Demasiados intentos. Acceso bloqueado.")
+
+    print("Fin del proceso de acceso.")
+
+    return usuario_autorizado
 
 
 # Generación de archivos de entrada (requisito del TP)
@@ -217,45 +226,42 @@ def generar_archivos_entrada():
 
 
 
-# Generación de archivos de salida intermedios
-# OJO: Vamos a generar 3 acá y el 4to es reportes_finales.txt
-
 def generar_archivos_salida(total, listausuario, listapertenencias, llave_generada):
     # salida_resumen_usuarios.txt
     try:
-        out1 = open("salida_resumen_usuarios.txt", "wt")
-        out1.write("=== RESUMEN DE USUARIOS REGISTRADOS ===\n")
-        out1.write(f"Cantidad total de usuarios declarada: {total}\n")
-        out1.write(f"Nombres cargados manualmente: {listausuario}\n")
-        out1.close()
+        arch1 = open("salida_resumen_usuarios.txt", "wt")
+        arch1.write("=== RESUMEN DE USUARIOS REGISTRADOS ===\n")
+        arch1.write(f"Cantidad total de usuarios declarada: {total}\n")
+        arch1.write(f"Nombres cargados manualmente: {listausuario}\n")
+        arch1.close()
     except IOError:
         print("No se pudo crear salida_resumen_usuarios.txt")
 
     # salida_resumen_pertenencias.txt
     try:
-        out2 = open("salida_resumen_pertenencias.txt", "wt")
-        out2.write("=== RESUMEN DE PERTENENCIAS ===\n")
-        out2.write(f"Cantidad total de pertenencias declaradas: {len(listapertenencias)}\n")
-        out2.write(f"Listado completo: {listapertenencias}\n")
+        arch2 = open("salida_resumen_pertenencias.txt", "wt")
+        arch2.write("=== RESUMEN DE PERTENENCIAS ===\n")
+        arch2.write(f"Cantidad total de pertenencias declaradas: {len(listapertenencias)}\n")
+        arch2.write(f"Listado completo: {listapertenencias}\n")
 
         # usamos slicing otra vez para grabar solo las primeras 3 pertenencias
         primeras_tres = listapertenencias[:3]
-        out2.write(f"Primeras tres pertenencias (slicing): {primeras_tres}\n")
+        arch2.write(f"Primeras tres pertenencias (slicing): {primeras_tres}\n")
 
-        out2.close()
+        arch2.close()
     except IOError:
         print("No se pudo crear salida_resumen_pertenencias.txt")
 
     # salida_llaves.txt
     try:
-        out3 = open("salida_llaves.txt", "wt")
-        out3.write("=== LLAVES VIRTUALES GENERADAS ===\n")
-        out3.write(f"Llave activa en sesión: {llave_generada}\n")
+        arch3 = open("salida_llaves.txt", "wt")
+        arch3.write("=== LLAVES VIRTUALES GENERADAS ===\n")
+        arch3.write(f"Llave activa en sesión: {llave_generada}\n")
         if llave_generada is None:
-            out3.write("Nota: El usuario decidió no generar llave virtual.\n")
+            arch3.write("Nota: El usuario decidió no generar llave virtual.\n")
         else:
-            out3.write("Nota: Llave aleatoria válida asignada.\n")
-        out3.close()
+            arch3.write("Nota: Llave aleatoria válida asignada.\n")
+        arch3.close()
     except IOError:
         print("No se pudo crear salida_llaves.txt")
 
@@ -271,20 +277,40 @@ def reportes_finales(num_str, listausuario, listapertenencias, llave):
         arch.write("1. Registro de huéspedes y personal:\n")
         arch.write(f"La cantidad de usuarios es: {num_str} y sus nombres son: {listausuario}\n")
         
-        primeras_pertenencias = listapertenencias[:3]  # Esto es un ejemplo de SLICING que muestra solo las primeras 3 pertenencias si hay muchas
+        # Mostrar solo las primeras 3 pertenencias (# SLICING)
+        primeras_pertenencias = listapertenencias[:3]
         
         arch.write("2. Gestión de pertenencias de huéspedes:\n")
         arch.write(f"La cantidad de pertenencias es: {len(listapertenencias)} y sus nombres son: {primeras_pertenencias}\n")
+
+        # Llave virtual
         arch.write("3. Llaves virtuales de acceso:\n")
         arch.write(f"La llave creada aleatoriamente es: {llave}\n")
-        
-        contar_total = lambda matriz: sum(len(fila) for fila in matriz) # cuenta total de habitaciones y es una función lambda
-        total_habitaciones = contar_total(ihotel_1()) + contar_total(ihotel_2())
+
+        # matrices
+        hotel1 = ihotel_1()
+        hotel2 = ihotel_2()
+
+        # total de habitaciones
+        contar_total = lambda matriz: sum(len(fila) for fila in matriz)
+        total_habitaciones = contar_total(hotel1) + contar_total(hotel2)
         
         arch.write("4. Matriz de habitaciones:\n")
-        arch.write(f"Matriz Hotel 1:\n{ihotel_1()}\n")
-        arch.write(f"Matriz Hotel 2:\n{ihotel_2()}\n")
-        arch.write(f"Total de habitaciones entre ambos hoteles: {total_habitaciones}\n")
+
+        arch.write("Matriz Hotel 1:\n")
+        for fila in hotel1:
+            for celda in fila:
+                arch.write(str(celda) + " ")
+            arch.write("\n")  # salto de línea después de cada fila
+
+        arch.write("\nMatriz Hotel 2:\n")
+        for fila in hotel2:
+            for celda in fila:
+                arch.write(str(celda) + " ")
+            arch.write("\n")
+
+        arch.write(f"\nTotal de habitaciones entre ambos hoteles: {total_habitaciones}\n")
+
 
         arch.write("5. Control de accesos:\n")
         arch.write("El control de accesos se realizó antes de permitir el uso del sistema.\n")
@@ -292,8 +318,10 @@ def reportes_finales(num_str, listausuario, listapertenencias, llave):
 
         arch.close()
         print("Reportes generados en 'reportes_finales.txt'.")
+        
     except IOError:
         print("Imposible crear archivo de reportes finales")
+
 
 
 def menu_principal(num, listausuario, listapertenencias, llave_generada):
@@ -325,11 +353,20 @@ def menu_principal(num, listausuario, listapertenencias, llave_generada):
 
             elif opcion == "4":
                 h1 = ihotel_1()
-                print("Matriz Hotel 1 creada.")
-                print(h1)
+                print("\nMatriz Hotel 1 creada:\n")
+                for fila in h1:
+                    for celda in fila:
+                        print(celda, end=" ")
+                    print()  # salto de línea 
+
                 h2 = ihotel_2()
-                print("Matriz Hotel 2 creada.")
-                print(h2)
+                print("\nMatriz Hotel 2 creada:\n")
+                for fila in h2:
+                    for celda in fila:
+                        print(celda, end=" ")
+                    print()
+
+
 
             elif opcion == "5":
                 print("Generando reportes finales...")
@@ -339,7 +376,7 @@ def menu_principal(num, listausuario, listapertenencias, llave_generada):
                 print("Saliendo del sistema. Adiós.")
                 break
 
-        except Exception as e:
+        except (ValueError, IOError):
             print("Ocurrió un error, intente de nuevo.")
 
 
@@ -375,7 +412,7 @@ def ipersonas(listausuario):
 
             for k in range(num_str):
                 while True:
-                    usuario, contrasena = login()  # login solo valida campos no vacíos
+                    usuario, j = login()  # login solo valida campos no vacíos
 
                     if usuario == "":
                         print("Nombre vacío, intente de nuevo.")
@@ -388,17 +425,22 @@ def ipersonas(listausuario):
                     listausuario.append(usuario)
                     break  # usuario agregado correctamente, pasar al siguiente
 
-            return num_str, listausuario  # se completó el ingreso de personas sin errores
+            return num_str, listausuario 
 
         except ValueError:
             print("valor no reconocido, ingrese un número entero")
 
 
-def main(intentos = 3):
-    # 1) Generamos los archivos de ENTRADA que pide la consigna
+def main():
+    # 1) archivos de ENTRADA
     generar_archivos_entrada()
 
     listausuario = []
+    dicc = {
+        "admin": "1234",
+        "recepcionista": "abcd",
+        "cliente": "0000"
+        }
 
     # preguntar creación de usuario inicial
     while True:
@@ -415,6 +457,7 @@ def main(intentos = 3):
         elif usuario in listausuario:
             print("Error, usuario ya existente. No se agregará.")
         else:
+            dicc[usuario] = contrasena
             listausuario.append(usuario)
             print(f"Usuario creado: {usuario}")
             creado = True
@@ -422,7 +465,7 @@ def main(intentos = 3):
     # registrar el resto de personas
     num, listausuario = ipersonas(listausuario)
 
-    # mostrar resultado total
+    # mostrar resultado total de usuarios registrados
     if creado:
         total = num + 1
         print(f"Se registraron {total} usuario(s).")
@@ -432,11 +475,12 @@ def main(intentos = 3):
 
     # === CICLO PRINCIPAL DEL SISTEMA ===
     while True:
-        acceso = control_accesos()
+        
+        acceso = control_accesos(dicc)
 
         if not acceso:
             print("No tiene permiso para continuar. Programa finalizado.")
-            break  # salimos del while True y con eso termina main()
+            break  # salida del while True y con eso termina main()
 
         else:
             print("Entrando al sistema...")
@@ -456,22 +500,21 @@ def main(intentos = 3):
             if opa1 == "s":
                 print(h2)
 
-            # 2) Generamos los archivos de SALIDA intermedios
+            # 2) archivos de SALIDA
             generar_archivos_salida(total, listausuario, listapertenencias, llave_generada)
 
-            # 3) Menú y luego reporte final (4to archivo de salida)
+            # 3) reporte final (4to archivo de salida)
             menu_principal(total, listausuario, listapertenencias, llave_generada)
 
             reportes_finales(total, listausuario, listapertenencias, llave_generada)
 
-            # IMPORTANTE: agregamos esta pregunta para SALIR del while True
+
             salir = input("¿Desea salir del sistema? (s/n): ").strip().lower()
             if salir == "s":
                 print("Saliendo del sistema. Adiós.")
                 break
             else:
                 print("Reiniciando sesión...\n")
-                # vuelve a pedir control_accesos() al inicio del while
 
 
 if __name__ == "__main__":
